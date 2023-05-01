@@ -14,19 +14,19 @@
 
 ## В приложении использовались следующие технологии:
   
-  - Framework Spring 
-  - ForkJoinPool
-  - база данных MySQL
-  - лемматизация apache lucene
-  - Jsoup
+- Framework Spring Boot
   - JPA
   - Apache Tom Cat
   - HikkariPool
   - JDBC
+- ForkJoinPool
+- лемматизация apache lucene
+- Jsoup
+ 
 
 ## Установка и запуск приложения.
 - Клонируем ссылку на репозиторий.
-- Открываем проект в среде разработки, например IntellejIdea.
+- Открываем проект в среде разработки, например IntelliJIdea.
 - В конфигурационном файле "application.yaml" устанавливаем
   - данные порта для этого приложения. 
   - данные подключения к базе данных  datasource: "user", "password" и "url" путь к MySQL серверу.
