@@ -33,7 +33,7 @@
   - Так же указываем данные сайтов sites: "url" и "name".
 
 
-Скриншот файла Application.yaml с настройками
+Скриншот файла application.yaml с настройками
 ![Снимок экрана (97)](https://user-images.githubusercontent.com/95944672/235534425-49381621-2942-49ba-9c78-f64aa2639ce6.png) 
 
 - в правом верхнем углу, кликаем по "Maven", выбираем "LifeCicle" 
