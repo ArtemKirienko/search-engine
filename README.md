@@ -37,7 +37,7 @@
 
 
 Скриншот файла Application
-  ![Снимок экрана (97)](https://user-images.githubusercontent.com/95944672/235533940-b73ff88e-89a7-493d-81d7-c6d899f24dc7.png)
+![Снимок экрана (97)](https://user-images.githubusercontent.com/95944672/235534425-49381621-2942-49ba-9c78-f64aa2639ce6.png) 
 
 - Открываем командную строку и запускаем .jar файл
   
