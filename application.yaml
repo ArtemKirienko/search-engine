@@ -1,0 +1,23 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    username: 
+    password:
+    url: jdbc:mysql://localhost:3306/search_engine?useSSL=false&requireSSL=false&allowPublicKeyRetrieval=true
+
+  jpa:
+    properties:
+      hibernate:
+        dialect: searchengine.config.MySQL8Dialectutf8mb4
+
+    hibernate:
+      ddl-auto: create
+    show-sql: false
+
+
+indexing-settings:
+  sites:
+    - url: https://nikoartgallery.com/
+      name: GalleryNiko
