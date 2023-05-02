@@ -18,10 +18,12 @@
   - JPA
   - Apache Tom Cat
   - HikkariPool
-  - JDBC
+  - Hibernate
 - ForkJoinPool
 - лемматизация apache lucene
 - Jsoup
+- mysql-connector-java
+- projectlombok
  
 
 ## Установка и запуск приложения.
