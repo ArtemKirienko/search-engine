@@ -10,14 +10,16 @@ import javax.persistence.*;
 @Getter
 @Setter
 @Entity
-@Table(name = "in_dex")
+@Table(name = "`index`")
 public class Index {
-
-    public Index(Page page, Lemma lemma, float rank){
-        this.page = page;
-        this.lemma = lemma;
-        this.rank = rank;
+    public Index(Page page, Lemma lemma, float rank) {
+        synchronized (this) {
+            this.page = page;
+            this.lemma = lemma;
+            this.rank = rank;
+        }
     }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -27,8 +29,6 @@ public class Index {
     @ManyToOne
     @JoinColumn(name = "lemma_id")
     private Lemma lemma;
-@Column(name = "ra_nk")
+    @Column(name = "`rank`")
     private Float rank;
-
-
 }

@@ -1,4 +1,4 @@
-package searchengine.config;
+package searchengine.compAndPojoClass;
 
 import org.apache.lucene.morphology.LuceneMorphology;
 import org.apache.lucene.morphology.russian.RussianLuceneMorphology;

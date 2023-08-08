@@ -15,7 +15,6 @@ public class ResponseTrue {
         }else {
             this.count = sObjL.size();
         }
-
         this.data = sObjL;
     }
 }

@@ -5,17 +5,14 @@ import lombok.Setter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import searchengine.config.ControllerStartStop;
+import searchengine.compAndPojoClass.Indexing;
 
 
+import searchengine.dto.ResponseTrue;
 import searchengine.dto.search.RequestObj;
-import searchengine.dto.startIndexing.ResponseFalse;
-import searchengine.dto.startIndexing.ResponseTrue;
+import searchengine.dto.startIndexing.IndexingResponse;
 import searchengine.dto.statistics.StatisticsResponse;
-import searchengine.repository.Repo;
-import searchengine.services.SearchService;
-import searchengine.services.StartIndexing;
-import searchengine.services.StatisticsService;
+import searchengine.services.*;
 
 import java.util.NoSuchElementException;
 
@@ -27,80 +24,56 @@ public class ApiController {
 
     private final StatisticsService statisticsService;
     private final StartIndexing startIndexing;
-    private final ControllerStartStop exemplContr;
+    private final Indexing indexing;
     private final SearchService searchService;
+    private final AddPage addPage;
 
-
-
-    public ApiController(StatisticsService statisticsService, StartIndexing startIndexing, ControllerStartStop exemplContr,SearchService searchService,Repo rep) {
+    public ApiController(StatisticsService statisticsService, StartIndexing startIndexing, Indexing indexing, SearchService searchService, AddPage addPage) {
         this.statisticsService = statisticsService;
         this.startIndexing = startIndexing;
-        this.exemplContr = exemplContr;
+        this.indexing = indexing;
         this.searchService = searchService;
-
+        this.addPage = addPage;
     }
 
+
     @GetMapping("/statistics")
-    ResponseEntity<StatisticsResponse> statistics() {
+    public ResponseEntity<StatisticsResponse> statistics() {
         return ResponseEntity.ok(statisticsService.getStatistics());
     }
 
     @GetMapping("/startIndexing")
-    ResponseEntity startIndexing() {
-
-        if (exemplContr.getIndStart()) {
-
-            return new ResponseEntity(new ResponseFalse("Индексация уже запущена"), HttpStatus.BAD_REQUEST);
+    public ResponseEntity<IndexingResponse> startIndexing() {
+        if (indexing.isIndexing()) {
+            return new ResponseEntity(new IndexingResponse("Индексация уже запущена"), HttpStatus.BAD_REQUEST);
         } else {
-
             startIndexing.startIndexing();
-
             return new ResponseEntity(new ResponseTrue(), HttpStatus.OK);
-
         }
-
     }
 
     @GetMapping("/stopIndexing")
-    ResponseEntity stopIndexing() {
-
-        if (exemplContr.getIndStart()) {
-
+    public ResponseEntity<IndexingResponse> stopIndexing() {
+        if (indexing.isIndexing()) {
             startIndexing.stopIndexing();
-
             return new ResponseEntity(new ResponseTrue(), HttpStatus.OK);
-
         } else {
-            return new ResponseEntity(new ResponseFalse("Индексация не запущена"), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity(new IndexingResponse("Индексация не запущена"), HttpStatus.BAD_REQUEST);
         }
-
     }
+
     @PostMapping("/indexPage")
-      ResponseEntity aDDindexPage(@RequestBody String string){
-
-       if (startIndexing.addIndexPage(string)){
-           return new ResponseEntity<>(new ResponseTrue(),HttpStatus.OK);
-       }
-       return new ResponseEntity(new ResponseFalse("Данная страница находится за пределами сайтов," +
-               "указанных в конфигурационном файле"),HttpStatus.BAD_REQUEST);
-
+    public ResponseEntity aDDindexPage(@RequestBody String string) {
+        return addPage.addIndexPage(string);
     }
 
     @GetMapping("/search")
-
-     ResponseEntity
-
-    searchQuery(RequestObj obj) {
+    public ResponseEntity searchQuery(RequestObj obj) {
         try {
-
-            return   searchService.search( obj);
-        }catch (NoSuchElementException e){
-
-            return new ResponseEntity(new ResponseFalse("Передана пустая строка"),HttpStatus.BAD_REQUEST );
+            return searchService.search(obj);
+        } catch (NoSuchElementException e) {
+            return new ResponseEntity(new IndexingResponse("Передана пустая строка"), HttpStatus.BAD_REQUEST);
         }
-
-
-
-   }
+    }
 }
 
