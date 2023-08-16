@@ -3,7 +3,7 @@ package searchengine.model;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import searchengine.exeptionClass.ExceedingNumberPages;
+import searchengine.config.ExceedingNumberPages;
 
 import javax.persistence.*;
 import java.util.HashSet;

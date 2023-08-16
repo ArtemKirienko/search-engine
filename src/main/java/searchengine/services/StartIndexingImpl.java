@@ -11,10 +11,10 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import searchengine.exeptionClass.ExceedingNumberPages;
-import searchengine.compAndPojoClass.Indexing;
-import searchengine.compAndPojoClass.LemmaFinder;
-import searchengine.compAndPojoClass.SiteConf;
+import searchengine.config.ExceedingNumberPages;
+import searchengine.config.IndExec;
+import searchengine.config.LemmaFinder;
+import searchengine.config.SiteConf;
 import searchengine.config.*;
 import searchengine.model.*;
 import searchengine.repository.*;
@@ -33,7 +33,7 @@ public class StartIndexingImpl implements StartIndexing {
     private final SitesList sites;
     private StopControllerWokerTask stopCont;
     @Autowired
-    private Indexing indexing;
+    private IndExec indexing;
     @Autowired
     private RepJpaSite repJpaSite;
     @Autowired
@@ -431,7 +431,7 @@ public class StartIndexingImpl implements StartIndexing {
 
     @Override
     public void startIndexing() {
-        indexing.setIndexing(true);
+        indexing.setExec(true);
         stopCont = new StopControllerWokerTask();
         StopControllerWokerTask.ParserRecursiveSitesList task = stopCont.new ParserRecursiveSitesList(sites);
         example.invoke(task);
@@ -472,6 +472,6 @@ public class StartIndexingImpl implements StartIndexing {
     @Override
     public void stopIndexing() {
         stopCont.stop = true;
-        indexing.setIndexing(false);
+        indexing.setExec(false);
     }
 }

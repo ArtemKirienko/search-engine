@@ -5,7 +5,7 @@ import lombok.Setter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import searchengine.compAndPojoClass.Indexing;
+import searchengine.config.IndExec;
 
 
 import searchengine.dto.ResponseTrue;
@@ -24,11 +24,11 @@ public class ApiController {
 
     private final StatisticsService statisticsService;
     private final StartIndexing startIndexing;
-    private final Indexing indexing;
+    private final IndExec indexing;
     private final SearchService searchService;
     private final AddPage addPage;
 
-    public ApiController(StatisticsService statisticsService, StartIndexing startIndexing, Indexing indexing, SearchService searchService, AddPage addPage) {
+    public ApiController(StatisticsService statisticsService, StartIndexing startIndexing, IndExec indexing, SearchService searchService, AddPage addPage) {
         this.statisticsService = statisticsService;
         this.startIndexing = startIndexing;
         this.indexing = indexing;
@@ -44,7 +44,7 @@ public class ApiController {
 
     @GetMapping("/startIndexing")
     public ResponseEntity<IndexingResponse> startIndexing() {
-        if (indexing.isIndexing()) {
+        if (indexing.isExec()) {
             return new ResponseEntity(new IndexingResponse("Индексация уже запущена"), HttpStatus.BAD_REQUEST);
         } else {
             startIndexing.startIndexing();
@@ -54,7 +54,7 @@ public class ApiController {
 
     @GetMapping("/stopIndexing")
     public ResponseEntity<IndexingResponse> stopIndexing() {
-        if (indexing.isIndexing()) {
+        if (indexing.isExec()) {
             startIndexing.stopIndexing();
             return new ResponseEntity(new ResponseTrue(), HttpStatus.OK);
         } else {

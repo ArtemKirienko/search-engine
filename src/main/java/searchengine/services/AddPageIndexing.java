@@ -7,12 +7,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import searchengine.compAndPojoClass.LemmaFinder;
-import searchengine.compAndPojoClass.SiteConf;
+import searchengine.config.LemmaFinder;
+import searchengine.config.SiteConf;
 import searchengine.config.SitesList;
 import searchengine.dto.ResponseTrue;
 import searchengine.dto.startIndexing.IndexingResponse;
-import searchengine.exeptionClass.ExceedingNumberPages;
+import searchengine.config.ExceedingNumberPages;
 import searchengine.model.Page;
 import searchengine.model.Site;
 import searchengine.model.StatusType;
@@ -36,7 +36,6 @@ public class AddPageIndexing implements AddPage {
             return responseIndexPageError("Адресная строка должна начинаться с http:// или https://");
         }
         String string = decodeURL(str);
-        System.out.println(string);
         if (!string.contains("http://") && !string.contains("https://")) {
             return responseIndexPageError("Адресная строка должна содержать http:// или https://");
         }

@@ -7,8 +7,8 @@ import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import searchengine.compAndPojoClass.LemmaFinder;
-import searchengine.compAndPojoClass.SiteConf;
+import searchengine.config.LemmaFinder;
+import searchengine.config.SiteConf;
 import searchengine.config.SitesList;
 import searchengine.dto.search.SnippedObject;
 
@@ -50,7 +50,6 @@ public class SearchServiceImpl implements SearchService {
             for (SiteConf s : sites.getSites()) {
                 ps.addAll(getPageLike(lemmaSet, s.getUrl()));
             }
-            System.out.println(ps.size());
         }
         float max = ps.stream().map(
                 p -> p.getIndexSet().stream().map(index -> index.getRank())
@@ -91,7 +90,7 @@ public class SearchServiceImpl implements SearchService {
         return lLemma;
     }
 
-    public List<Page> getPageLike(Set<String> lemmaSet, String siteUrl) {//
+    public List<Page> getPageLike(Set<String> lemmaSet, String siteUrl) {
         if (lemmaSet.isEmpty()) {
             return new ArrayList<>();
         }
@@ -125,7 +124,6 @@ public class SearchServiceImpl implements SearchService {
             l.add(sb.get(start));
         }
         Collections.sort(l);
-        l.stream().forEach(System.out::println);
         return l;
     }
 
