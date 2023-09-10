@@ -33,11 +33,13 @@
   - данные порта для этого приложения. 
   - данные подключения к базе данных  datasource: "user", "password" и "url" путь к MySQL серверу.
   - Так же указываем данные сайтов sites: "url" и "name".
+  - При необходимости можно поменять свойства "connection-settings".
 
 
 Скриншот файла application.yaml с настройками
- 
-![Снимок экрана (98)](https://user-images.githubusercontent.com/95944672/235547450-df5efa68-2d39-496f-8325-56ae63ad1f44.png)
+
+![Снимок экрана ](https://github.com/artem02121985/search-engine/assets/95944672/5529f428-0489-474d-8fbc-178ecd2f9d14)
+
 
 - в правом верхнем углу, кликаем по "Maven", выбираем "LifeCicle" 
     и кликаем
