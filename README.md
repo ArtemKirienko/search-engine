@@ -38,7 +38,7 @@
 
 Скриншот файла application.yaml с настройками
 
-![Снимок экрана (107)](https://github.com/artem02121985/search-engine/assets/95944672/9621ea44-cc8d-4135-ae76-3892d5f679a7)
+![Снимок экрана (108)](https://github.com/artem02121985/search-engine/assets/95944672/a78836cf-6e5c-47a6-8694-7381b91ab334)
 
 
 - в правом верхнем углу, кликаем по "Maven", выбираем "LifeCicle" 
