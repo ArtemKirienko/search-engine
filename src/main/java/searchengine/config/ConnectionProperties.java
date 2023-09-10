@@ -4,14 +4,15 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
-import searchengine.config.pojo.ConfSite;
+import searchengine.config.pojo.Name;
 
-import java.util.Set;
+import java.util.List;
 
 @Getter
 @Setter
 @Component
-@ConfigurationProperties(prefix = "indexing-settings")
-public class SitesList {
-    private Set<ConfSite> sites;
+@ConfigurationProperties(prefix = "connection-settings")
+public class ConnectionProperties {
+  private  List<Name> refers;
+  private  List<Name> users;
 }

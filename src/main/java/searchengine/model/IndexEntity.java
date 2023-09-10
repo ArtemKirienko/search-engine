@@ -11,8 +11,8 @@ import javax.persistence.*;
 @Setter
 @Entity
 @Table(name = "`index`")
-public class Index {
-    public Index(Page page, Lemma lemma, float rank) {
+public class IndexEntity {
+    public IndexEntity(PageEntity page, LemmaEntity lemma, float rank) {
         synchronized (this) {
             this.page = page;
             this.lemma = lemma;
@@ -25,10 +25,10 @@ public class Index {
     private int id;
     @ManyToOne
     @JoinColumn(name = "page_id")
-    private Page page;
+    private PageEntity page;
     @ManyToOne
     @JoinColumn(name = "lemma_id")
-    private Lemma lemma;
+    private LemmaEntity lemma;
     @Column(name = "`rank`")
     private Float rank;
 }

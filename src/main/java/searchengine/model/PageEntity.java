@@ -14,8 +14,8 @@ import java.util.Set;
 @Entity
 @Table(name = "page", uniqueConstraints =
 @UniqueConstraint(columnNames = {"path", "site_id"}))
-public class Page {
-    public Page(Site site, String path, int code, String content) {
+public class PageEntity {
+    public PageEntity(SiteEntity site, String path, int code, String content) {
         synchronized (this) {
             this.site = site;
             this.path = path;
@@ -29,7 +29,7 @@ public class Page {
     private int id;
     @ManyToOne
     @JoinColumn(name = "site_id")
-    private Site site;
+    private SiteEntity site;
     @Column(columnDefinition = "varchar(255)", nullable = false)
     private String path;
     @Column(nullable = false)
@@ -37,7 +37,12 @@ public class Page {
     @Column(columnDefinition = "MEDIUMTEXT", nullable = false)
     private String content;
     @OneToMany(mappedBy = "page", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private Set<Index> indexSet = new HashSet<>();
+    private Set<IndexEntity> indexSet = new HashSet<>();
+
+    @Override
+    public int hashCode() {
+        return getSite().hashCode() + getPath().hashCode();
+    }
 }
 
 

@@ -3,11 +3,12 @@ package searchengine.model;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import searchengine.config.ExceedingNumberPages;
 
 import javax.persistence.*;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
+
 
 @RequiredArgsConstructor
 @Getter
@@ -15,16 +16,13 @@ import java.util.Set;
 @Entity
 @Table(name = "lemma", uniqueConstraints =
 @UniqueConstraint(columnNames = {"lemma", "site_id"}))
-public class Lemma {
-    public Lemma(Site site, String lemma, int countPage) throws ExceedingNumberPages {
+public class LemmaEntity {
+    public LemmaEntity(SiteEntity site, String lemma) {
         synchronized (this) {
             this.site = site;
             this.lemma = lemma;
+            this.frequency = 1;
         }
-        if (frequency > countPage) {
-            throw new ExceedingNumberPages("превышение допустимого количества страниц");
-        }
-        this.frequency = 1;
     }
 
     @Id
@@ -33,12 +31,17 @@ public class Lemma {
     private int id;
     @ManyToOne
     @JoinColumn(name = "site_id")
-    private Site site;
+    private SiteEntity site;
     @Column(columnDefinition = "varchar(255)", nullable = false)
     private String lemma;
     @Column(nullable = false)
     private int frequency;
     @OneToMany(mappedBy = "lemma", cascade = CascadeType.ALL)
-    private Set<Index> indexSet = new HashSet<>();
+    private Set<IndexEntity> indexSet = new HashSet<>();
+
+    public static Comparator<LemmaEntity> getFrequencyComparator(){
+        return Comparator.comparingInt(LemmaEntity::getFrequency);
+    }
+
 }
 

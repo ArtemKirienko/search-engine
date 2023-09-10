@@ -1,11 +1,10 @@
 package searchengine.services;
 
-import org.springframework.http.ResponseEntity;
-
-import searchengine.dto.search.RequestObj;
+import searchengine.dto.search.SearchRequest;
+import searchengine.dto.search.SearchResponse;
 
 import java.util.NoSuchElementException;
 
 public interface SearchService {
-    ResponseEntity search(RequestObj obj) throws NoSuchElementException;
+    SearchResponse search(SearchRequest obj);
 }

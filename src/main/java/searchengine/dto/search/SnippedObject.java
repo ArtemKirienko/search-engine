@@ -4,11 +4,8 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-@Service
 @Data
-@RequiredArgsConstructor
-
-public class SnippedObject implements Comparable<SnippedObject>{
+public class SnippedObject implements Comparable<SnippedObject> {
     private String site;
     private String siteName;
     private String uri;
@@ -25,14 +22,8 @@ public class SnippedObject implements Comparable<SnippedObject>{
         this.relevance = relevance;
     }
 
-
-
     @Override
     public int compareTo(SnippedObject o) {
         return Float.compare(o.getRelevance(), this.getRelevance());
     }
-
-
-
-
 }

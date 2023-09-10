@@ -1,16 +1,16 @@
 package searchengine.services;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import searchengine.config.ExecuteIndicator;
 import searchengine.dto.statistics.DetailedStatisticsItem;
 import searchengine.dto.statistics.StatisticsData;
 import searchengine.dto.statistics.StatisticsResponse;
 import searchengine.dto.statistics.TotalStatistics;
-import searchengine.model.Site;
-import searchengine.repository.RepJpaLemma;
-import searchengine.repository.RepJpaSite;
-import searchengine.repository.RepJpaPage;
+import searchengine.model.SiteEntity;
+import searchengine.repository.LemmaRepository;
+import searchengine.repository.SiteRepository;
+import searchengine.repository.PageRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,46 +18,37 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class StatisticsServiceImpl implements StatisticsService {
-    @Autowired
-    RepJpaSite repositoryJpaSite;
-    @Autowired
-    RepJpaPage repositryJpaPage;
-    @Autowired
-    RepJpaLemma repositoryJpaLemma;
-    private List<Site> allSites;
+    private final ExecuteIndicator executeIndicator;
+    private final SiteRepository repositoryJpaSite;
+    private final PageRepository repositryJpaPage;
+    private final LemmaRepository repositoryJpaLemma;
+    private List<SiteEntity> allSites;
 
     @Override
     public StatisticsResponse getStatistics() {
         allSites = repositoryJpaSite.findAll();
-        TotalStatistics total = new TotalStatistics();
-        total.setSites(allSites.size());
-        total.setIndexing(true);
-        List<DetailedStatisticsItem> detailed = new ArrayList<>();
-        createDataDetailedAndTotal(total, detailed);
-        StatisticsResponse response = new StatisticsResponse();
-        StatisticsData data = new StatisticsData();
-        data.setTotal(total);
-        data.setDetailed(detailed);
-        response.setStatistics(data);
-        response.setResult(true);
+        int sitesCount = allSites.size();
+        boolean indexing = executeIndicator.isExec();
+        TotalStatistics total = new TotalStatistics(sitesCount, indexing);
+        List<DetailedStatisticsItem> detailed = createDataDetailedAndTotal(total);;
+        StatisticsData data = new StatisticsData(total, detailed);
+        StatisticsResponse response = new StatisticsResponse(true, data);
         return response;
     }
 
-    public void createDataDetailedAndTotal(TotalStatistics total, List detailed) {
-        allSites.stream().forEach(s -> {
-            DetailedStatisticsItem item = new DetailedStatisticsItem();
-            item.setName(s.getName());
-            item.setUrl(s.getUrl());
-            int pages = repositryJpaPage.countBySiteId(s.getId());
-            int lemmas = repositoryJpaLemma.countBySiteId(s.getId());
-            item.setPages(pages);
-            item.setLemmas(lemmas);
-            item.setStatus(s.getStatus().toString());
-            item.setError(s.getLastError());
-            item.setStatusTime(s.getStatusTime());
+    public List<DetailedStatisticsItem> createDataDetailedAndTotal(TotalStatistics total) {
+        List<DetailedStatisticsItem> detailedList = new ArrayList<>();
+        for (SiteEntity site : allSites) {
+            int pages = repositryJpaPage.countBySiteId(site.getId());
+            int lemmas = repositoryJpaLemma.countBySiteId(site.getId());
+            DetailedStatisticsItem item =
+                    new DetailedStatisticsItem(site.getUrl(), site.getName(), site.getStatus().toString()
+                            , site.getStatusTime(), site.getLastError(), pages, lemmas);
             total.setPages(total.getPages() + pages);
             total.setLemmas(total.getLemmas() + lemmas);
-            detailed.add(item);
-        });
+            detailedList.add(item);
+        }
+        return detailedList;
     }
+
 }

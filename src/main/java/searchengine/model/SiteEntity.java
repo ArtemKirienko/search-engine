@@ -15,11 +15,11 @@ import java.util.*;
 @Setter
 @Entity
 @Table(name = "site")
-public class Site {
+public class SiteEntity {
     @Transient
     final public static DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-    public Site(String name, String url, StatusType type) {
+    public SiteEntity(String name, String url, StatusType type) {
         synchronized (this) {
             this.name = name;
             this.status = type;
@@ -29,7 +29,7 @@ public class Site {
         }
     }
 
-    public Site(String name, String url, StatusType type, String lastError) {
+    public SiteEntity(String name, String url, StatusType type, String lastError) {
         this.name = name;
         this.status = type;
         setTimeNow();
@@ -51,12 +51,13 @@ public class Site {
     private String url;
     @Column(columnDefinition = "VARCHAR(255)", nullable = false)
     private String name;
-    @OneToMany(mappedBy = "site", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Lemma> lemmaSet = new HashSet<>();
-    @OneToMany(mappedBy = "site", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Page> pageSet = new HashSet<>();
+    @OneToMany(mappedBy = "site", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private Set<LemmaEntity> lemmaSet = new HashSet<>();
+    @OneToMany(mappedBy = "site", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private Set<PageEntity> pageSet = new HashSet<>();
 
     public void setTimeNow() {
         statusTime = FORMATTER.format(LocalDateTime.now());
     }
+
 }

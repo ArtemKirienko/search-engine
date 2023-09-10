@@ -1,6 +1,8 @@
-package searchengine.dto.startIndexing;
+package searchengine.dto.indexing;
 
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 @Data
 public class IndexingResponse {
@@ -10,4 +12,10 @@ public class IndexingResponse {
     public IndexingResponse(String error) {
         this.error = error;
     }
+
+    public IndexingResponse() {
+        this.result = true;
+    }
+
+
 }
