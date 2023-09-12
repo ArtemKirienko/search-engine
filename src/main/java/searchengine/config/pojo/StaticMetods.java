@@ -23,8 +23,7 @@ public class StaticMetods {
     }
 
     public static String getElement(List<Name> values) {
-        String value = Math.random() * 10 > 5 ? values.get(0).getValue() : values.get(1).getValue();
-        return value;
+        return Math.random() * 10 > 5 ? values.get(0).getValue() : values.get(1).getValue();
     }
 
     public static Connection.Response connection(String path) throws IOException {
@@ -42,12 +41,11 @@ public class StaticMetods {
     }
 
     public static boolean getFiltr(String attrHref) {
-        Boolean endWith =
-                !attrHref.endsWith(".pdf")
-                        && !attrHref.endsWith(".php")
-                        && !attrHref.endsWith(".jpg")
-                        && !attrHref.endsWith(".png");
-        return endWith;
+        return !attrHref.endsWith(".pdf")
+                && !attrHref.endsWith(".php")
+                && !attrHref.endsWith(".jpg")
+                && !attrHref.endsWith(".png");
+
     }
 
     public static String cleanSlashUrl(String path) {
@@ -88,7 +86,7 @@ public class StaticMetods {
         return (attrHref.contains(domUrl))
                 || attrHref.contains(cleanWwwUrl(domUrl))
                 && getFiltr(attrHref)
-                && attrHref.indexOf("http") == 0;
+                && attrHref.indexOf("http://") == 0;
     }
 
     public static synchronized IndexingResponse getIndRespOk() {

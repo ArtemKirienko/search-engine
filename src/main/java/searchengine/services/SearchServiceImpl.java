@@ -7,6 +7,7 @@ import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
 import searchengine.config.LemmaFinderInstance;
 import searchengine.config.SiteMapBean;
+import searchengine.config.pojo.RankAndIdPage;
 import searchengine.dto.search.SearchResponse;
 import searchengine.dto.search.SnippedObject;
 import searchengine.dto.search.SearchRequest;
@@ -20,63 +21,78 @@ import searchengine.repository.PageRepository;
 import searchengine.repository.SiteRepository;
 
 import java.util.*;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import static searchengine.config.pojo.StaticMetods.*;
-
 
 @Service
 @RequiredArgsConstructor
 public class SearchServiceImpl implements SearchService {
     private final SiteMapBean siteMapBean;
     private final LemmaFinderInstance lemmaFinderInstance;
-    private final PageRepository repositoryJpaPage;
-    private final IndexRepository repositoryJpaIndex;
-    private final LemmaRepository repositoryJpaLemma;
-    private final SiteRepository repositoryJpaSite;
+    private final PageRepository pageRepository;
+    private final IndexRepository indexRepository;
+    private final LemmaRepository lemmaRepository;
+    private final SiteRepository siteRepository;
 
     @Override
-    public SearchResponse search(SearchRequest request) {
-        Set<String> lemmaSet = lemmaFinderInstance.getLemmaFinder().getLemmaSet(request.getQuery());
-        if (lemmaSet.isEmpty()) {
-            return getSearchresponsError("Передана пустая строка");
+    public SearchResponse search(SearchRequest req) {
+        try {
+            Set<String> lemmaSet = getLemmaSet(req.getQuery());
+            List<RankAndIdPage> rankAndIdPages = getPageList(lemmaSet, req.getQuery());
+            Collections.sort(rankAndIdPages);
+            List<RankAndIdPage> limitedList = getLimitedList(rankAndIdPages, req.getOffset(), req.getLimit());
+            List<SnippedObject> snippedObjectList = getListSnippetObject(limitedList, req.getQuery());
+            return getSearchRespOk(snippedObjectList);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return getSearchresponsError(e.getMessage());
         }
-        List<PageEntity> pageList = new LinkedList<>();
-        if (request.getSiteUrl() != null) {
-            List<SiteEntity> listSite = repositoryJpaSite.findByUrl(request.getSiteUrl());
-            if (listSite.isEmpty()) {
-                return new SearchResponse("Сайт не индексирован");
-            }
-            pageList.addAll(creatQueryAndFindPage(lemmaSet, listSite.get(0), pageList));
-        } else {
-            List<SiteEntity> listSites = repositoryJpaSite.findAll();
-            if (listSites.isEmpty()) {
-                return new SearchResponse("Сайты не идексированы");
-            }
-            for (SiteEntity site : listSites) {
-                pageList.addAll(creatQueryAndFindPage(lemmaSet, site, pageList));
-            }
-        }
-        List<SnippedObject> snippedObjectList = getListSnippetObject(pageList, request.getQuery());
-        snippedObjectList = getLimitList(snippedObjectList, request.getOffset(), request.getLimit());
-        return getSearchRespOk(snippedObjectList);
     }
 
+    public Set<String> getLemmaSet(String txt) throws Exception {
+        Set<String> lemmaSet = lemmaFinderInstance.getLemmaFinder().getLemmaSet(txt);
+        if (lemmaSet.isEmpty()) {
+            throw new Exception("Передана пустая строка");
+        }
+        return lemmaSet;
+    }
 
-    public List<PageEntity> creatQueryAndFindPage(Set<String> lemmasNames, SiteEntity site, List<PageEntity> pageList) {
-        int countPage = repositoryJpaPage.countBySiteId(site.getId());
+    public List<RankAndIdPage> getPageList(Set<String> lemmaSet, String siteUrl) throws Exception {
+        List<SiteEntity> listSites = siteUrl == null ? siteRepository.findByUrl(siteUrl) :
+                siteRepository.findAll();
+        if (listSites.isEmpty()) {
+            throw new Exception("Идексация не проводилась");
+        }
+        if (listSites.size() == 1) {
+            return new LinkedList<>(creatQueryAndFindPage(lemmaSet, listSites.get(0)));
+        }
+        return getPageListOfAllSite(lemmaSet, listSites);
+    }
+
+    public List<RankAndIdPage> creatQueryAndFindPage(Set<String> lemmasNames, SiteEntity site) {
+        int countPage = pageRepository.countBySiteId(site.getId());
         if (countPage < 10) {
-            return findPage(new ArrayList<>(lemmasNames), site, pageList);
+            return findPage(new ArrayList<>(lemmasNames), site);
         }
         int edgeValue = countPage - countPage / 4;
         List<String> creatLemmQuery = creatQuery(edgeValue, lemmasNames, site);
-        return findPage(creatLemmQuery, site, pageList);
+        return findPage(creatLemmQuery, site);
+    }
+
+    public List<RankAndIdPage> getPageListOfAllSite(Set<String> lemmaSet, List<SiteEntity> listSites) {
+        List<RankAndIdPage> pages = new LinkedList<>();
+        for (SiteEntity site : listSites) {
+            pages.addAll(creatQueryAndFindPage(lemmaSet, site));
+        }
+        return pages;
     }
 
     public List<String> creatQuery(int edgeValue, Set<String> lemmasNames, SiteEntity site) {
         List<String> creatLemmQuery = new ArrayList<>(lemmasNames);
         for (String lemma : creatLemmQuery) {
-            String lemByonFreq = repositoryJpaLemma.findLemmaByondEdgeFreq(edgeValue, lemma, site.getId());
+            String lemByonFreq = lemmaRepository.findLemmaByondEdgeFreq(edgeValue, lemma, site.getId());
             if (lemByonFreq != null) {
                 creatLemmQuery.remove(lemByonFreq);
             }
@@ -87,70 +103,100 @@ public class SearchServiceImpl implements SearchService {
         return creatLemmQuery;
     }
 
-    public List<PageEntity> findPage(List<String> lemmaNames, SiteEntity site, List<PageEntity> pageList) {
+    public List<RankAndIdPage> findPage(List<String> lemmaNames, SiteEntity site) {
         List<LemmaEntity> lemmas = getSortLemmas(lemmaNames, site);
+        List<RankAndIdPage> listRankAndId = new ArrayList<>();
         for (int i = 0; i < lemmas.size(); i++) {
             LemmaEntity lemma = lemmas.get(i);
-            String lemmaName = lemma.getLemma();
             if (i == 0) {
-                List<IndexEntity> indexsList = repositoryJpaIndex.findByLemmaId(lemma.getId());
-                pageList = indexsList.stream().map(index -> index.getPage()).collect(Collectors.toList());
+                List<Integer> pageIdList = indexRepository.pageIdList(lemma.getId());
+                listRankAndId = getRankAndIdListPage(lemma.getId(), pageIdList, listRankAndId);
             }
             if (i > 0) {
-                pageList = filterPageList(pageList, lemmaName);
+                listRankAndId = filterPageList(listRankAndId, lemma.getId());
             }
         }
-        return pageList;
+        if (!listRankAndId.isEmpty()) {
+            reWriteRank(listRankAndId);
+        }
+        return listRankAndId;
     }
 
-    public List<PageEntity> filterPageList(List<PageEntity> pageList, String lemmaName) {
-        return pageList.stream()
-                .filter(p -> p.getIndexSet().stream().anyMatch(is -> is.getLemma().getLemma().equals(lemmaName)
-                ))
-                .collect(Collectors.toList());
+    public List<RankAndIdPage> getRankAndIdListPage(int lemmaId
+            , List<Integer> pagesId, List<RankAndIdPage> rankAndIdList) {
+        for (Integer pageId : pagesId) {
+            List<Float> listRank = indexRepository.findRankByLemmaIdAndPageId(lemmaId, pageId);
+            if (!listRank.isEmpty()) {
+                Float rank = listRank.get(0);
+                rankAndIdList.add(new RankAndIdPage(pageId, rank));
+            }
+        }
+        return rankAndIdList;
+    }
+
+    public List<RankAndIdPage> filterPageList(List<RankAndIdPage> rankAndIdPageList, int lemmaId) {
+        for (RankAndIdPage rankAndId : rankAndIdPageList) {
+            List<Integer> lemmaList = indexRepository.lemmaIdList(rankAndId.getPageId());
+            if (!lemmaList.contains(lemmaId)) {
+                rankAndIdPageList.remove(rankAndId);
+                continue;
+            }
+            List<Float> list = indexRepository.findRankByLemmaIdAndPageId(lemmaId, rankAndId.getPageId());
+            if (!list.isEmpty()) {
+                Float rank = list.get(0);
+                Float generalRenk = rankAndId.getGeneralRank();
+                rankAndId.setGeneralRank(generalRenk + rank);
+            }
+        }
+        return rankAndIdPageList;
+    }
+
+    public void reWriteRank(List<RankAndIdPage> rankAndIdPageList) {
+        float allPagesGeneralRank = rankAndIdPageList
+                .stream()
+                .map(RankAndIdPage::getGeneralRank).reduce(Float::sum).get();
+        for (RankAndIdPage rankAndIdPage : rankAndIdPageList) {
+            Float valueRankNew = rankAndIdPage.getGeneralRank() / allPagesGeneralRank;
+            rankAndIdPage.setGeneralRank(valueRankNew);
+        }
     }
 
     public List<LemmaEntity> getSortLemmas(List<String> lemmaNames, SiteEntity site) {
         Map<String, LemmaEntity> lemmasMap = siteMapBean.getSiteMap().get(site.getUrl()).getLemmaMap();
         List<LemmaEntity> lemmas = getLemmasFromNamesList(lemmasMap, lemmaNames);
-        Collections.sort(lemmas, LemmaEntity.getFrequencyComparator());
+        lemmas.sort(LemmaEntity.getFrequencyComparator());
         return lemmas;
     }
 
     public List<LemmaEntity> getLemmasFromNamesList(Map<String, LemmaEntity> lemmasMap, List<String> lemmaNames) {
         List<LemmaEntity> lemmaList = new ArrayList<>();
         for (String lemmaName : lemmaNames) {
-            LemmaEntity lemma = lemmasMap.get(lemmaName);
-            if (lemma != null) {
+            if (lemmasMap.containsKey(lemmaName)) {
+                LemmaEntity lemma = lemmasMap.get(lemmaName);
                 lemmaList.add(lemma);
             }
         }
         return lemmaList;
     }
 
-    public List<SnippedObject> getListSnippetObject(List<PageEntity> pageList, String requestQuery) {
-        List<SnippedObject> snObList = new ArrayList<>();
-        for (PageEntity p : pageList) {
-            snObList.add(new SnippedObject(
-                    cleanSlashUrl(p.getSite().getUrl())
-                    , p.getSite().getName()
-                    , p.getPath()
-                    , getTitle(p.getContent())
-                    , getSnipped(p.getContent(), requestQuery)
-                    , getSummRankPage(p) / getSummRankPages(pageList))
-            );
+    public List<SnippedObject> getListSnippetObject(List<RankAndIdPage> rankAndIdPageList, String requestQuery) {
+        List<SnippedObject> snippeds = new LinkedList<>();
+        for (RankAndIdPage rankAndIdPage : rankAndIdPageList) {
+            Optional<PageEntity> pageOpt = pageRepository.findById(rankAndIdPage.getPageId());
+            if (pageOpt.isPresent()) {
+                PageEntity p = pageOpt.get();
+                String snipped = getSnipped(p.getContent(), requestQuery);
+                snippeds.add(new SnippedObject(
+                                cleanSlashUrl(p.getSite().getUrl())
+                                , p.getSite().getName()
+                                , p.getPath()
+                                , getTitle(p.getContent())
+                                , snipped
+                        )
+                );
+            }
         }
-        return snObList;
-    }
-
-    public float getSummRankPages(List<PageEntity> listPage) {
-        return listPage.stream()
-                .map(p -> p.getIndexSet().stream().map(index -> index.getRank()).reduce((x, y) -> x + y).get())
-                .reduce((x, y) -> x + y).get();
-    }
-
-    public float getSummRankPage(PageEntity page) {
-        return page.getIndexSet().stream().map(ind -> ind.getRank()).reduce((x, y) -> x + y).get();
+        return snippeds;
     }
 
     public String getTitle(String str) {
@@ -159,18 +205,16 @@ public class SearchServiceImpl implements SearchService {
         return elementsHead.text();
     }
 
-    public List<SnippedObject> getLimitList(List<SnippedObject> snOb, int offset, int limit) {
-        List<SnippedObject> l = new ArrayList<>();
-        int start = 0;
-        if (offset < snOb.size()) {
-            start = offset;
+    public List<RankAndIdPage> getLimitedList(List<RankAndIdPage> rankAndIdPageList, int offset, int limit) {
+        List<RankAndIdPage> limitedRankAndIdPageList = new ArrayList<>();
+        if (offset > rankAndIdPageList.size()) {
+            offset = 0;
         }
-        int end = (offset + limit > snOb.size()) ? snOb.size() : offset + limit;
-        for (; start < end; start++) {
-            l.add(snOb.get(start));
+        limit = Math.min(offset + limit, rankAndIdPageList.size());
+        for (; offset < limit; offset++) {
+            limitedRankAndIdPageList.add(rankAndIdPageList.get(offset));
         }
-        Collections.sort(l);
-        return l;
+        return limitedRankAndIdPageList;
     }
 
     public String getSnipped(String txt, String queryTxt) {

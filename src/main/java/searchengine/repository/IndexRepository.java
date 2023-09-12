@@ -9,10 +9,13 @@ import java.util.List;
 
 @Repository
 public interface IndexRepository extends JpaRepository<IndexEntity, Integer> {
-    @Query(value = "select * from `index` where lemma_id = " +
-            "(select id from Lemma where lemma = :value and site_id = (select id from Site where url = :url))"
-            , nativeQuery = true)
-    List<IndexEntity> selectIndexWereLemma(String value, String url);
+//////////////////переделать на обычные запросы
+    @Query(value = "select page_id from `index` where lemma_id = :lemmaId", nativeQuery = true)
+    List<Integer> pageIdList(int lemmaId);
 
-    List<IndexEntity> findByLemmaId(int lemmaId);
+    @Query(value = "select lemma_id from `index` where page_id = :pageId", nativeQuery = true)
+    List<Integer> lemmaIdList(int pageId);
+
+    @Query(value = "select `rank` from `index` where lemma_id = :lemmaId and page_id = :pageId", nativeQuery = true)
+    List<Float> findRankByLemmaIdAndPageId(int lemmaId, int pageId);
 }

@@ -56,11 +56,10 @@ public class SiteWrap {
             }
             if (urlsFiltr(domUrl, attrHref)) {
                 urlSet.add(attrHref);
+                continue;
             }
             if (attrHref.charAt(0) == '/' && getFiltr(attrHref)) {
-                StringBuilder URLendHtml = new StringBuilder(domUrl);
-                URLendHtml.append(attrHref);
-                urlSet.add(URLendHtml.toString());
+                urlSet.add(domUrl + attrHref);
             }
         }
         return urlSet;
@@ -112,7 +111,7 @@ public class SiteWrap {
                 return;
             }
             synchronized (this) {
-                boolean value = lemmaMap.keySet().contains(lemmaKey);
+                boolean value = lemmaMap.containsKey(lemmaKey);
                 LemmaEntity lemma;
                 if (value) {
                     lemma = lemmaMap.get(lemmaKey);

@@ -19,7 +19,6 @@ import java.util.concurrent.*;
 
 import static searchengine.config.pojo.StaticMetods.*;
 
-
 @Data
 @Service
 public class IndexingServiceImpl implements IndexingService {
@@ -62,24 +61,30 @@ public class IndexingServiceImpl implements IndexingService {
 
     @Override
     public IndexingResponse addIndexPage(IndexingRequest indexingRequest) {
-        String value = urlCheck(indexingRequest.getUrl());
-        if (!value.equals("")) {
-            return getIndRespError(value);
+        String returnValue = urlCheck(indexingRequest.getUrl());
+        if (!returnValue.equals("")) {
+            return getIndRespError(returnValue);
         }
         String url = indexingRequest.getUrl();
-        Optional<ConfSite> optSiteConf =
-                sites.getSites().stream().filter(u -> url.contains(cleanSlashUrl(u.getUrl()))).findFirst();
+        Optional<ConfSite> siteConfOpt = getConfSiteOpt(url);
         try {
-            if (optSiteConf.isPresent()) {
-                return indexPage(optSiteConf.get());
+            if (siteConfOpt.isPresent()) {
+                return indexPage(siteConfOpt.get());
             }
         } catch (Exception ex) {
             if (ex instanceof HttpStatusException && parseStatus(ex.getMessage()) == 404) {
                 return getIndRespError("Указанная страница не найдена");
             }
+            ex.printStackTrace();
             return getIndRespError("Произошла ошибка индексации");
         }
         return getIndRespError("Сайт находиться за пределами индексируемого списка сайтов");
+    }
+
+    public Optional<ConfSite> getConfSiteOpt(String url) {
+        return sites.getSites().stream()
+                .filter(u -> cleanSlashUrl(url).contains(cleanSlashUrl(u.getUrl())))
+                .findFirst();
     }
 
     public String urlCheck(String url) {

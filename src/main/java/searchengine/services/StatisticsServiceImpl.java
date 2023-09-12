@@ -30,10 +30,9 @@ public class StatisticsServiceImpl implements StatisticsService {
         int sitesCount = allSites.size();
         boolean indexing = executeIndicator.isExec();
         TotalStatistics total = new TotalStatistics(sitesCount, indexing);
-        List<DetailedStatisticsItem> detailed = createDataDetailedAndTotal(total);;
+        List<DetailedStatisticsItem> detailed = createDataDetailedAndTotal(total);
         StatisticsData data = new StatisticsData(total, detailed);
-        StatisticsResponse response = new StatisticsResponse(true, data);
-        return response;
+        return new StatisticsResponse(true, data);
     }
 
     public List<DetailedStatisticsItem> createDataDetailedAndTotal(TotalStatistics total) {
@@ -50,5 +49,4 @@ public class StatisticsServiceImpl implements StatisticsService {
         }
         return detailedList;
     }
-
 }

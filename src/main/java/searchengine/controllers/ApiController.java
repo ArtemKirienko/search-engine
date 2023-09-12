@@ -5,8 +5,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-
 import searchengine.dto.indexing.IndexingRequest;
 import searchengine.dto.search.SearchRequest;
 import searchengine.dto.indexing.IndexingResponse;

@@ -1,6 +1,8 @@
 package searchengine.config.pojo.tasks;
 
-import lombok.Data;
+
+import lombok.Getter;
+import lombok.Setter;
 import org.jsoup.Connection;
 import searchengine.config.AllRepAndLemmaInstance;
 import searchengine.config.ExecuteIndicator;
@@ -19,7 +21,8 @@ import java.util.concurrent.RecursiveAction;
 
 import static searchengine.config.pojo.StaticMetods.*;
 
-@Data
+@Getter
+@Setter
 public class ParserRecursiveSitesList extends RecursiveAction {
     private LinkedList<ParserRecursiveMain> list = new LinkedList<>();
     private volatile TasksStopController exemplStop;
@@ -52,7 +55,7 @@ public class ParserRecursiveSitesList extends RecursiveAction {
                 creatAndPushTask(s, resp);
             } catch (Exception e) {
                 if (e instanceof IOException) {
-                    saveExceptionTxt(s, "Нет соединения c сайтом");
+                    saveExceptionTxt(s, "Нет соединения");
                 }
             }
         }
@@ -87,15 +90,14 @@ public class ParserRecursiveSitesList extends RecursiveAction {
     }
 
     public void saveExceptionTxt(ConfSite s, String exceptTxt) {
-        String ex = "Главная страница сайта недоступна";
         List<SiteEntity> lsite = siteRepository.findByUrl(s.getUrl());
         if (!lsite.isEmpty()) {
             SiteEntity site = lsite.get(0);
             site.setTimeNow();
-            site.setLastError(ex);
+            site.setLastError(exceptTxt);
             siteRepository.save(site);
         } else {
-            SiteEntity site = new SiteEntity(s.getName(), s.getUrl(), StatusType.FAILED, ex);
+            SiteEntity site = new SiteEntity(s.getName(), s.getUrl(), StatusType.FAILED, exceptTxt);
             siteRepository.save(site);
         }
     }
