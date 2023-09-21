@@ -1,4 +1,4 @@
-package searchengine.config.pojo;
+package searchengine.data;
 
 import org.apache.lucene.morphology.LuceneMorphology;
 import org.apache.lucene.morphology.russian.RussianLuceneMorphology;

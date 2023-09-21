@@ -1,13 +1,17 @@
 package searchengine.services;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Connection;
 import org.jsoup.HttpStatusException;
 import org.springframework.stereotype.Service;
 import searchengine.config.ExecuteIndicator;
-import searchengine.config.pojo.*;
+import searchengine.data.*;
 import searchengine.config.*;
-import searchengine.config.pojo.tasks.ParserRecursiveSitesList;
+import searchengine.data.exceptions.IndexingServiceException;
+import searchengine.data.tasks.ParserRecursiveSitesList;
 import searchengine.dto.indexing.IndexingRequest;
 import searchengine.dto.indexing.IndexingResponse;
 import searchengine.model.*;
@@ -17,115 +21,136 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.*;
 
-import static searchengine.config.pojo.StaticMetods.*;
+import static searchengine.data.UrlUtils.*;
+import static searchengine.dto.indexing.IndexingResponse.getIndRespError;
+import static searchengine.dto.indexing.IndexingResponse.getIndRespOk;
 
-@Data
+@Slf4j
+@Getter
+@Setter
+@RequiredArgsConstructor
 @Service
 public class IndexingServiceImpl implements IndexingService {
-    private final static ForkJoinPool example = new ForkJoinPool();
+    private final ConnectionMetod cm;
     private final TaskStopControllerBean stopControllerBean;
-    private final AllRepAndLemmaInstance allRepALemm;
+    private final AllRepAndLemmaInstance allRepAndLemmaInstance;
     private final SitesList sites;
     private final ExecuteIndicator indicator;
     private final SiteRepository repJpaSite;
     private final PageRepository repJpaPage;
     private final SiteMapBean siteMapBean;
 
-    public synchronized void putSiteMap(String siteUrl, SiteWrap wrap) {
-        siteMapBean.getSiteMap().put(siteUrl, wrap);
-    }
 
     @Override
     public IndexingResponse startIndexing() {
-        if (indicator.isExec()) {
-            return getIndRespError("Индексация уже запущена");
-        }
-        indicator.setExec(true);
-        TasksStopController stopCont = new TasksStopController();
-        stopControllerBean.setTasksStopController(stopCont);
-        ParserRecursiveSitesList task =
-                new ParserRecursiveSitesList(stopCont, allRepALemm, siteMapBean, sites, indicator);
-        example.invoke(task);
+        return indicator.isExec() ?
+                getIndRespError("Индексация уже запущена") :
+                runStart();
+    }
+
+    private IndexingResponse runStart() {
+        start();
         return getIndRespOk();
+    }
+
+    private void start() {
+        Thread startIndexingSiteList = new Thread(() -> {
+            indicator.setExec(true);
+            TasksStopController stopCont = new TasksStopController();
+            stopControllerBean.setTasksStopController(stopCont);
+            ParserRecursiveSitesList task =
+                    new ParserRecursiveSitesList(stopCont, allRepAndLemmaInstance, siteMapBean, sites, indicator);
+            ForkJoinPool example = new ForkJoinPool(sites.getSites().size() + 3);
+            example.invoke(task);
+        });
+        startIndexingSiteList.start();
     }
 
     @Override
     public IndexingResponse stopIndexing() {
-        if (!indicator.isExec()) {
-            return getIndRespError("Индексация не запущена");
-        }
+        return indicator.isExec() ?
+                runStop() :
+                getIndRespError("Индексация не запущена");
+    }
+
+    private IndexingResponse runStop() {
         stopControllerBean.getTasksStopController().setStop(true);
         indicator.setExec(false);
         return getIndRespOk();
     }
 
     @Override
-    public IndexingResponse addIndexPage(IndexingRequest indexingRequest) {
-        String returnValue = urlCheck(indexingRequest.getUrl());
-        if (!returnValue.equals("")) {
-            return getIndRespError(returnValue);
-        }
-        String url = indexingRequest.getUrl();
-        Optional<ConfSite> siteConfOpt = getConfSiteOpt(url);
+    public IndexingResponse addIndexPage(IndexingRequest request) {
         try {
-            if (siteConfOpt.isPresent()) {
-                return indexPage(siteConfOpt.get());
-            }
-        } catch (Exception ex) {
-            if (ex instanceof HttpStatusException && parseStatus(ex.getMessage()) == 404) {
-                return getIndRespError("Указанная страница не найдена");
-            }
-            ex.printStackTrace();
-            return getIndRespError("Произошла ошибка индексации");
+            String url = request.getUrl();
+            urlCheckHttp(url);
+            Optional<Site> optional = sitePresentCheck(url);
+            return optional.isPresent() ?
+                    indexPage(optional.get(), url) :
+                    getIndRespError("Сайт находиться за пределами индексируемого списка сайтов");
+        } catch (Exception e) {
+            return checkErrorClass(e);
         }
-        return getIndRespError("Сайт находиться за пределами индексируемого списка сайтов");
     }
 
-    public Optional<ConfSite> getConfSiteOpt(String url) {
+    private Optional<Site> sitePresentCheck(String url) {
         return sites.getSites().stream()
                 .filter(u -> cleanSlashUrl(url).contains(cleanSlashUrl(u.getUrl())))
                 .findFirst();
     }
 
-    public String urlCheck(String url) {
-        if (!(url.indexOf("https://") == 0 || url.indexOf("http://") == 0)) {
-            return "Адресная строка должна начинаться с https:// или http://";
-        }
-        return "";
+    private IndexingResponse checkErrorClass(Exception e) {
+        return e instanceof HttpStatusException && parseStatus(e.getMessage()) == 404 ?
+                getIndRespError("Указанная страница не найдена или недоступна") :
+                e instanceof IndexingServiceException ?
+                        getIndRespError(e.getMessage()) :
+                        getExceptionNotVerifiable(e);
     }
 
-    public IndexingResponse indexPage(ConfSite siteConf)
+    private IndexingResponse getExceptionNotVerifiable(Exception e) {
+        log.error(e.getClass().toString());
+        return getIndRespError("Произошла ошибка индексации");
+    }
+
+    private void urlCheckHttp(String url) throws IndexingServiceException {
+        if (url.indexOf("https://") != 0 && url.indexOf("http://") != 0) {
+            throw new IndexingServiceException("Адресная строка должна начинаться с https:// или http://");
+        }
+    }
+
+    private IndexingResponse indexPage(Site siteConf, String reqUrl)
             throws IOException {
         String siteUrl = siteConf.getUrl();
-        Connection.Response response = connection(siteUrl);
-        List<SiteEntity> list = repJpaSite.findByUrl(siteConf.getUrl());
-        if (list.isEmpty()) {
-            return createSiteAndPage(response, siteConf, siteUrl);
-        }
-        SiteWrap wrap = siteMapBean.getSiteMap().get(list.get(0).getUrl());
-        deletePageIfPresent(wrap, siteUrl);
-        wrap.createPage(siteUrl, response);
-        return getIndRespOk();
+        Connection.Response response = cm.connection(reqUrl);
+        List<SiteEntity> list = repJpaSite.findByUrl(siteUrl);
+        return list.isEmpty() ?
+                createSiteAndPage(response, siteConf, siteUrl) :
+                deleteAndSaveNewPage(list, response, reqUrl);
     }
 
-    public IndexingResponse createSiteAndPage(Connection.Response response, ConfSite siteConf, String siteUrl) {
+    private IndexingResponse createSiteAndPage(Connection.Response resp, Site siteConf, String reqUrl) {
         SiteEntity site = new SiteEntity(siteConf.getName(), siteConf.getUrl(), StatusType.INDEXING);
         repJpaSite.save(site);
-        SiteWrap wrap = new SiteWrap(new TasksStopController(), allRepALemm, site);
-        putSiteMap(siteConf.getUrl(), wrap);
-        wrap.createPage(siteUrl, response);
+        SiteWrap wrap = new SiteWrap(new TasksStopController(), allRepAndLemmaInstance, site);
+        siteMapBean.getSiteMap().put(siteConf.getUrl(), wrap);
+        wrap.createPage(reqUrl, resp);
         return getIndRespOk();
     }
 
-    public void deletePageIfPresent(SiteWrap wrap, String str) {
-        Set<String> urlSet = wrap.getUrlSet();
-        if (urlSet.contains(str)) {
-            int siteId = wrap.getSite().getId();
-            List<PageEntity> pageList = repJpaPage.findByPathAndSiteId(str, siteId);
-            if (!pageList.isEmpty()) {
-                repJpaPage.deleteById(pageList.get(0).getId());
-            }
-            urlSet.remove(str);
+    private IndexingResponse deleteAndSaveNewPage(List<SiteEntity> list, Connection.Response resp, String reqUrl) {
+        SiteWrap wrap = siteMapBean.getSiteMap().get(list.get(0).getUrl());
+        deletePageIfPresent(wrap, reqUrl);
+        wrap.createPage(reqUrl, resp);
+        return getIndRespOk();
+    }
+
+    private void deletePageIfPresent(SiteWrap wrap, String reqUrl) {
+        int siteId = wrap.getSite().getId();
+        List<PageEntity> pageList = repJpaPage.findByPathAndSiteId(parseUrlChild(reqUrl), siteId);
+        if (!pageList.isEmpty()) {
+            int pageId = pageList.get(0).getId();
+            repJpaPage.deleteById(pageId);
+            wrap.getUrlSet().remove(reqUrl);
         }
     }
 }

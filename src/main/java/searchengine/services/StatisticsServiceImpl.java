@@ -40,9 +40,8 @@ public class StatisticsServiceImpl implements StatisticsService {
         for (SiteEntity site : allSites) {
             int pages = repositryJpaPage.countBySiteId(site.getId());
             int lemmas = repositoryJpaLemma.countBySiteId(site.getId());
-            DetailedStatisticsItem item =
-                    new DetailedStatisticsItem(site.getUrl(), site.getName(), site.getStatus().toString()
-                            , site.getStatusTime(), site.getLastError(), pages, lemmas);
+            DetailedStatisticsItem item = new DetailedStatisticsItem(site.getUrl(), site.getName(),
+                    site.getStatus().toString(), site.getStatusTime(), site.getLastError(), pages, lemmas);
             total.setPages(total.getPages() + pages);
             total.setLemmas(total.getLemmas() + lemmas);
             detailedList.add(item);

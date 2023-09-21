@@ -4,7 +4,8 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 public class IndexingResponse {
     private boolean result;
     private String error;
@@ -17,5 +18,12 @@ public class IndexingResponse {
         this.result = true;
     }
 
+    public static synchronized IndexingResponse getIndRespOk() {
+        return new IndexingResponse();
+    }
+
+    public static synchronized IndexingResponse getIndRespError(String str) {
+        return new IndexingResponse(str);
+    }
 
 }

@@ -1,18 +1,19 @@
 package searchengine.dto.search;
 
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 
-@Data
+@Setter
+@Getter
 public class SearchResponse {
     private boolean result;
     private int count;
-    private List<SnippedObject> data;
+    private List<SearchObject> data;
     private String error;
 
-    public SearchResponse(List<SnippedObject> sObjL) {
+    public SearchResponse(List<SearchObject> sObjL) {
         this.result = true;
         if (sObjL.isEmpty()) {
             this.count = 0;
@@ -27,4 +28,11 @@ public class SearchResponse {
     }
 
 
+    public static synchronized SearchResponse getSearchRespOk(List<SearchObject> objects) {
+        return new SearchResponse(objects);
+    }
+
+    public static synchronized SearchResponse getSearchRespError(String message) {
+        return new SearchResponse(message);
+    }
 }

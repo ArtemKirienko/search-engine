@@ -1,14 +1,17 @@
 package searchengine.config;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import searchengine.config.pojo.SiteWrap;
+import searchengine.data.SiteWrap;
 
 import java.util.HashMap;
 import java.util.Map;
 
-@Data
+@Getter
+@RequiredArgsConstructor
 @Component
 public class SiteMapBean {
-    private Map<String, SiteWrap> siteMap = new HashMap<>();
+    private final Map<String, SiteWrap> siteMap = new HashMap<>();
+
 }

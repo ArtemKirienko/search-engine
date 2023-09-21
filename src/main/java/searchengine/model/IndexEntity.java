@@ -12,14 +12,6 @@ import javax.persistence.*;
 @Entity
 @Table(name = "`index`")
 public class IndexEntity {
-    public IndexEntity(PageEntity page, LemmaEntity lemma, float rank) {
-        synchronized (this) {
-            this.page = page;
-            this.lemma = lemma;
-            this.rank = rank;
-        }
-    }
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -31,4 +23,10 @@ public class IndexEntity {
     private LemmaEntity lemma;
     @Column(name = "`rank`")
     private Float rank;
+
+    public IndexEntity(PageEntity page, LemmaEntity lemma, float rank) {
+        this.page = page;
+        this.lemma = lemma;
+        this.rank = rank;
+    }
 }

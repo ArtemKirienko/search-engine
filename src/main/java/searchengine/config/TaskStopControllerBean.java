@@ -1,10 +1,14 @@
 package searchengine.config;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.springframework.stereotype.Component;
-import searchengine.config.pojo.TasksStopController;
+import searchengine.data.TasksStopController;
 
-@Data
+@Getter
+@Setter
+@RequiredArgsConstructor
 @Component
 public class TaskStopControllerBean {
     private volatile TasksStopController tasksStopController;

@@ -15,19 +15,10 @@ import java.util.Set;
 @Table(name = "page", uniqueConstraints =
 @UniqueConstraint(columnNames = {"path", "site_id"}))
 public class PageEntity {
-    public PageEntity(SiteEntity site, String path, int code, String content) {
-        synchronized (this) {
-            this.site = site;
-            this.path = path;
-            this.code = code;
-            this.content = content;
-        }
-    }
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "site_id")
     private SiteEntity site;
     @Column(columnDefinition = "varchar(255)", nullable = false)
@@ -36,8 +27,17 @@ public class PageEntity {
     private int code;
     @Column(columnDefinition = "MEDIUMTEXT", nullable = false)
     private String content;
-    @OneToMany(mappedBy = "page", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "page", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<IndexEntity> indexSet = new HashSet<>();
+
+    public PageEntity(SiteEntity site, String path, int code, String content) {
+        synchronized (this) {
+            this.site = site;
+            this.path = path;
+            this.code = code;
+            this.content = content;
+        }
+    }
 
     @Override
     public int hashCode() {

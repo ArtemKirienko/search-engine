@@ -1,4 +1,4 @@
-package searchengine.config.pojo;
+package searchengine.data;
 
 import org.hibernate.dialect.MySQL8Dialect;
 

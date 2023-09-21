@@ -1,11 +1,11 @@
-package searchengine.config.pojo;
+package searchengine.data;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Setter
 @Getter
-public class ConfSite {
+public class Site {
     private String url;
     private String name;
 

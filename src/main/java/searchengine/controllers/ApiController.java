@@ -14,8 +14,9 @@ import searchengine.services.*;
 
 @Getter
 @Setter
-@RestController
 @RequiredArgsConstructor
+@RestController
+
 @RequestMapping("/api")
 public class ApiController {
     private final StatisticsService statisticsService;
