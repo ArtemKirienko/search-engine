@@ -1,18 +1,15 @@
 package searchengine.services;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
-import org.slf4j.Marker;
-import org.slf4j.MarkerFactory;
 import org.springframework.stereotype.Service;
 import searchengine.config.LemmaFinderInstance;
 import searchengine.config.SiteMapBean;
-import searchengine.data.PageData;
-import searchengine.data.SiteWrap;
-import searchengine.data.exceptions.SearchServiceException;
+import searchengine.utils.PageData;
+import searchengine.utils.SiteWrap;
+import searchengine.exceptions.SearchServiceException;
 import searchengine.dto.search.SearchResponse;
 import searchengine.dto.search.SearchObject;
 import searchengine.dto.search.SearchRequest;
@@ -24,15 +21,12 @@ import searchengine.repository.LemmaRepository;
 import searchengine.repository.PageRepository;
 import searchengine.repository.SiteRepository;
 
-
 import java.util.*;
 
-import static searchengine.data.UrlUtils.*;
-
-import static searchengine.data.exceptions.SearchServiceException.getTxtFirstLine;
+import static searchengine.utils.UrlUtils.*;
+import static searchengine.exceptions.SearchServiceException.getTxtFirstLine;
 import static searchengine.dto.search.SearchResponse.*;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class SearchServiceImpl implements SearchService {
@@ -42,8 +36,6 @@ public class SearchServiceImpl implements SearchService {
     private final IndexRepository indexRepository;
     private final LemmaRepository lemmaRepository;
     private final SiteRepository siteRepository;
-    private final Marker ERR_TXT_MARKER = MarkerFactory.getMarker("ERR_TXT");
-    private final Marker ERR_CLASS_MARKER = MarkerFactory.getMarker("ERR_CLASS");
 
     @Override
     public SearchResponse search(SearchRequest req) {
@@ -55,7 +47,6 @@ public class SearchServiceImpl implements SearchService {
             List<SearchObject> snippedObjectList = getSearchObjects(limitedList, req.getQuery());
             return getSearchRespOk(snippedObjectList);
         } catch (Exception e) {
-            saveLog(e);
             return checkingClassOfError(e);
         }
     }
@@ -63,12 +54,7 @@ public class SearchServiceImpl implements SearchService {
     private SearchResponse checkingClassOfError(Exception e) {
         return e instanceof SearchServiceException ?
                 getSearchRespError(getTxtFirstLine(e.getMessage())) :
-                getSearchRespError("Ошибка");
-    }
-
-    private void saveLog(Exception e) {
-        log.error(ERR_TXT_MARKER, e.getClass().toString());
-        log.error(ERR_CLASS_MARKER, getTxtFirstLine(e.getMessage()));
+                getSearchRespError("Ошибка. Class Erorror : " + e.getClass());
     }
 
     private Set<String> getLemmaSet(String txt) throws Exception {
@@ -81,7 +67,6 @@ public class SearchServiceImpl implements SearchService {
         List<SiteEntity> listSites = (siteUrl == null) ?
                 siteRepository.findAll() :
                 siteRepository.findByUrl(siteUrl);
-        log.error(Integer.toString(listSites.size()));
         chekingForEmpty(listSites, "Индексация не проводилась");
         return getPagesDataBySiteCount(lemmaNames, listSites);
     }
@@ -214,7 +199,7 @@ public class SearchServiceImpl implements SearchService {
 
     private List<PageData> writeRanks(List<PageData> pagesData, float allRank) {
         for (PageData pageData : pagesData) {
-            Float newRank = pageData.getGeneralRank() / allRank;
+            float newRank = pageData.getGeneralRank() / allRank;
             pageData.setGeneralRank(newRank);
         }
         return pagesData;

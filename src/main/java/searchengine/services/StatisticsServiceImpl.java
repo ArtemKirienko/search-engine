@@ -20,7 +20,7 @@ import java.util.List;
 public class StatisticsServiceImpl implements StatisticsService {
     private final ExecuteIndicator executeIndicator;
     private final SiteRepository repositoryJpaSite;
-    private final PageRepository repositryJpaPage;
+    private final PageRepository repositoryJpaPage;
     private final LemmaRepository repositoryJpaLemma;
     private List<SiteEntity> allSites;
 
@@ -38,7 +38,7 @@ public class StatisticsServiceImpl implements StatisticsService {
     public List<DetailedStatisticsItem> createDataDetailedAndTotal(TotalStatistics total) {
         List<DetailedStatisticsItem> detailedList = new ArrayList<>();
         for (SiteEntity site : allSites) {
-            int pages = repositryJpaPage.countBySiteId(site.getId());
+            int pages = repositoryJpaPage.countBySiteId(site.getId());
             int lemmas = repositoryJpaLemma.countBySiteId(site.getId());
             DetailedStatisticsItem item = new DetailedStatisticsItem(site.getUrl(), site.getName(),
                     site.getStatus().toString(), site.getStatusTime(), site.getLastError(), pages, lemmas);

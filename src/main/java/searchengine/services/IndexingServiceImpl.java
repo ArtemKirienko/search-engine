@@ -3,15 +3,14 @@ package searchengine.services;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Connection;
 import org.jsoup.HttpStatusException;
 import org.springframework.stereotype.Service;
 import searchengine.config.ExecuteIndicator;
-import searchengine.data.*;
+import searchengine.utils.*;
 import searchengine.config.*;
-import searchengine.data.exceptions.IndexingServiceException;
-import searchengine.data.tasks.ParserRecursiveSitesList;
+import searchengine.exceptions.IndexingServiceException;
+import searchengine.utils.tasks.ParserRecursiveSitesList;
 import searchengine.dto.indexing.IndexingRequest;
 import searchengine.dto.indexing.IndexingResponse;
 import searchengine.model.*;
@@ -21,11 +20,10 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.*;
 
-import static searchengine.data.UrlUtils.*;
+import static searchengine.utils.UrlUtils.*;
 import static searchengine.dto.indexing.IndexingResponse.getIndRespError;
 import static searchengine.dto.indexing.IndexingResponse.getIndRespOk;
 
-@Slf4j
 @Getter
 @Setter
 @RequiredArgsConstructor
@@ -39,7 +37,6 @@ public class IndexingServiceImpl implements IndexingService {
     private final SiteRepository repJpaSite;
     private final PageRepository repJpaPage;
     private final SiteMapBean siteMapBean;
-
 
     @Override
     public IndexingResponse startIndexing() {
@@ -108,7 +105,6 @@ public class IndexingServiceImpl implements IndexingService {
     }
 
     private IndexingResponse getExceptionNotVerifiable(Exception e) {
-        log.error(e.getClass().toString());
         return getIndRespError("Произошла ошибка индексации");
     }
 

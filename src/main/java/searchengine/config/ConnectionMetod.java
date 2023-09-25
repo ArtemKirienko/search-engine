@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.jsoup.Connection;
 import org.jsoup.helper.HttpConnection;
 import org.springframework.stereotype.Component;
-import searchengine.data.Name;
+import searchengine.utils.Name;
 
 import java.io.IOException;
 import java.util.List;
@@ -12,7 +12,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Component
 public class ConnectionMetod {
-   private final ConnectionProperties cp;
+    private final ConnectionProperties cp;
 
     public Connection.Response connection(String path) throws IOException {
         return HttpConnection.connect(path)

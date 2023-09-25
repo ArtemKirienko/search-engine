@@ -1,4 +1,4 @@
-package searchengine.data;
+package searchengine.utils;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -7,7 +7,7 @@ import lombok.Setter;
 @Setter
 public class PageData implements Comparable<PageData> {
    private Integer pageId;
-   private Float generalRank;
+   private float generalRank;
 
     public PageData(Integer pageId, Float generalRank) {
         this.pageId = pageId;
@@ -16,7 +16,7 @@ public class PageData implements Comparable<PageData> {
 
     @Override
     public int compareTo(PageData o) {
-        if (this.getGeneralRank().equals(o.getGeneralRank())) {
+        if (this.getGeneralRank() == (o.getGeneralRank())) {
             return 0;
         }
         return this.getGeneralRank() - o.getGeneralRank() > 0 ? -1 : 1;

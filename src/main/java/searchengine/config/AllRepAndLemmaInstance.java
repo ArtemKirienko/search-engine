@@ -1,14 +1,12 @@
 package searchengine.config;
 
 import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import searchengine.repository.IndexRepository;
 import searchengine.repository.LemmaRepository;
 import searchengine.repository.PageRepository;
 import searchengine.repository.SiteRepository;
 @Getter
-@Slf4j
 @Component
 public class AllRepAndLemmaInstance {
     private final SiteRepository repJpaSite;

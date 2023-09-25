@@ -1,16 +1,14 @@
-package searchengine.data;
+package searchengine.utils;
 
 import lombok.Getter;
 import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Connection;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import searchengine.config.AllRepAndLemmaInstance;
-
 import searchengine.config.ConnectionMetod;
-import searchengine.data.tasks.ParserRecursive;
+import searchengine.utils.tasks.ParserRecursive;
 import searchengine.model.IndexEntity;
 import searchengine.model.LemmaEntity;
 import searchengine.model.PageEntity;
@@ -22,9 +20,8 @@ import searchengine.repository.SiteRepository;
 
 import java.util.*;
 
-import static searchengine.data.UrlUtils.*;
+import static searchengine.utils.UrlUtils.*;
 
-@Slf4j
 @Getter
 @Setter
 public class SiteWrap {

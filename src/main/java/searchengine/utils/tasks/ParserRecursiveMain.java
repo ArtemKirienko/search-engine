@@ -1,11 +1,10 @@
-package searchengine.data.tasks;
-
+package searchengine.utils.tasks;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Connection;
-import searchengine.data.TasksStopController;
-import searchengine.data.SiteWrap;
+import searchengine.utils.TasksStopController;
+import searchengine.utils.SiteWrap;
 import searchengine.model.SiteEntity;
 import searchengine.model.StatusType;
 import java.util.concurrent.RecursiveAction;
@@ -24,6 +23,7 @@ public class ParserRecursiveMain extends RecursiveAction {
     }
 
     protected void compute() {
+        log.info(wrap.getDomUrl());
         if (exemplStop.isStop()) {
             return;
         }

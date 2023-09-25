@@ -1,4 +1,4 @@
-package searchengine.data;
+package searchengine.utils;
 
 import org.hibernate.dialect.MySQL8Dialect;
 

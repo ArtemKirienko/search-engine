@@ -1,14 +1,13 @@
-package searchengine.data.tasks;
-
+package searchengine.utils.tasks;
 
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Connection;
 import searchengine.config.*;
-import searchengine.data.Site;
-import searchengine.data.TasksStopController;
-import searchengine.data.SiteWrap;
+import searchengine.utils.Site;
+import searchengine.utils.TasksStopController;
+import searchengine.utils.SiteWrap;
 import searchengine.model.SiteEntity;
 import searchengine.model.StatusType;
 import searchengine.repository.SiteRepository;
@@ -69,14 +68,14 @@ public class ParserRecursiveSitesList extends RecursiveAction {
                 }
                 createAndAddListTask(s, resp, tasks);
             } catch (Exception e) {
-                saveException(e, s);
+                getException(e, s);
             }
         }
         return tasks;
     }
 
 
-    private void saveException(Exception e, Site s) {
+    private void getException(Exception e, Site s) {
         if (e instanceof IOException) {
             saveIndexingSiteError(s, "Нет соединения");
         } else {
@@ -139,6 +138,4 @@ public class ParserRecursiveSitesList extends RecursiveAction {
             siteRepository.deleteById(lsite.get(0).getId());
         }
     }
-
-
 }

@@ -1,16 +1,16 @@
-package searchengine.data.tasks;
+package searchengine.utils.tasks;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Connection;
 import org.jsoup.HttpStatusException;
 import searchengine.config.ConnectionMetod;
-import searchengine.data.TasksStopController;
-import searchengine.data.SiteWrap;
+import searchengine.utils.TasksStopController;
+import searchengine.utils.SiteWrap;
 
 import java.util.concurrent.RecursiveAction;
 
-import static searchengine.data.UrlUtils.parseStatus;
+import static searchengine.utils.UrlUtils.parseStatus;
 @Slf4j
 @Setter
 public class ParserRecursive extends RecursiveAction {
@@ -44,5 +44,4 @@ public class ParserRecursive extends RecursiveAction {
             log.error(e.getClass().toString());
         }
     }
-
 }

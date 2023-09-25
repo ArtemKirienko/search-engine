@@ -1,6 +1,5 @@
 package searchengine.dto.indexing;
 
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 

@@ -3,7 +3,7 @@ package searchengine.config;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import searchengine.data.SiteWrap;
+import searchengine.utils.SiteWrap;
 
 import java.util.HashMap;
 import java.util.Map;

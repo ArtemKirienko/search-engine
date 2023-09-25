@@ -55,5 +55,4 @@ public class SiteEntity {
     public void setTimeNow() {
         statusTime = LocalDateTime.now();
     }
-
 }

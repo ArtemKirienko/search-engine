@@ -9,5 +9,4 @@ public interface IndexingService {
     IndexingResponse stopIndexing();
 
     IndexingResponse addIndexPage(IndexingRequest indexingRequest);
-
 }
