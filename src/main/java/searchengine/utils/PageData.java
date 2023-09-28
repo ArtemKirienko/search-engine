@@ -21,15 +21,4 @@ public class PageData implements Comparable<PageData> {
         }
         return this.getGeneralRank() - o.getGeneralRank() > 0 ? -1 : 1;
     }
-
-    @Override
-    public boolean equals(Object o) {
-        return  this.getClass() == o.getClass();
-
-    }
-
-    @Override
-    public int hashCode() {
-        return 1;
-    }
 }

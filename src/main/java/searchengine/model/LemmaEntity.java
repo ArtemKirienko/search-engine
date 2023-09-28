@@ -39,15 +39,5 @@ public class LemmaEntity {
     public static Comparator<LemmaEntity> getFrequencyComparator() {
         return Comparator.comparingInt(LemmaEntity::getFrequency);
     }
-
-    @Override
-    public boolean equals(Object o) {
-        return this.getClass() == o.getClass();
-    }
-
-    @Override
-    public int hashCode() {
-        return 1;
-    }
 }
 
