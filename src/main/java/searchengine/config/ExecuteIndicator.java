@@ -1,6 +1,5 @@
 package searchengine.config;
 
-
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -11,5 +10,5 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 @Component
 public class ExecuteIndicator {
-     private volatile boolean exec;
+    private volatile boolean exec;
 }

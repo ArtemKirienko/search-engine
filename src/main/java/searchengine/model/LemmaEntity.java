@@ -7,6 +7,7 @@ import lombok.Setter;
 import javax.persistence.*;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @RequiredArgsConstructor
@@ -38,6 +39,23 @@ public class LemmaEntity {
 
     public static Comparator<LemmaEntity> getFrequencyComparator() {
         return Comparator.comparingInt(LemmaEntity::getFrequency);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        LemmaEntity that = (LemmaEntity) o;
+        return id == that.id
+                && frequency == that.frequency
+                && Objects.equals(site, that.site)
+                && Objects.equals(lemma, that.lemma)
+                && Objects.equals(indexSet, that.indexSet);
+    }
+
+    @Override
+    public int hashCode() {
+        return id;
     }
 }
 

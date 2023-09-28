@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 import searchengine.utils.LemmaFinder;
 
 import java.io.IOException;
+
 @Slf4j
 @Getter
 @Component

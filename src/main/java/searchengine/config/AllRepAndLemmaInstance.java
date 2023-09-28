@@ -6,6 +6,7 @@ import searchengine.repository.IndexRepository;
 import searchengine.repository.LemmaRepository;
 import searchengine.repository.PageRepository;
 import searchengine.repository.SiteRepository;
+
 @Getter
 @Component
 public class AllRepAndLemmaInstance {

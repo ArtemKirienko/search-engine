@@ -13,6 +13,6 @@ import java.util.List;
 @Component
 @ConfigurationProperties(prefix = "connection-settings")
 public class ConnectionProperties {
-  private  List<Name> refers;
-  private  List<Name> users;
+    private List<Name> refers;
+    private List<Name> users;
 }

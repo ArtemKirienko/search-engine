@@ -24,5 +24,4 @@ public class IndexingResponse {
     public static synchronized IndexingResponse getIndRespError(String str) {
         return new IndexingResponse(str);
     }
-
 }

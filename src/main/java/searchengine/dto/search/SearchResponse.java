@@ -27,7 +27,6 @@ public class SearchResponse {
         this.error = error;
     }
 
-
     public static synchronized SearchResponse getSearchRespOk(List<SearchObject> objects) {
         return new SearchResponse(objects);
     }
