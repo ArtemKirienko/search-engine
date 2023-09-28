@@ -27,5 +27,4 @@ public class AllRepAndLemmaInstance {
         this.connectionMetod = connectionMetod;
         this.sitesList = sitesList;
     }
-
 }

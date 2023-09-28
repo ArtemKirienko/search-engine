@@ -24,14 +24,12 @@ public class PageData implements Comparable<PageData> {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        PageData that = (PageData) o;
-        return pageId == that.pageId && Float.compare(that.generalRank, generalRank) == 0;
+        return  this.getClass() == o.getClass();
+
     }
 
     @Override
     public int hashCode() {
-        return pageId + Float.floatToIntBits(generalRank);
+        return 1;
     }
 }
