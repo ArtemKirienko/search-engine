@@ -136,19 +136,19 @@ public class SearchServiceImpl implements SearchService {
         for (int i = 0; i < lemmas.size(); i++) {
             LemmaEntity lemma = lemmas.get(i);
             pagesData = (i == 0) ?
-                    createPagesDataByPagesId(lemma.getId()) :
+                    createPagesDataByLemmaId(lemma.getId()) :
                     filterPagesData(pagesData, lemma.getId());
         }
         return pagesData;
     }
 
-    private List<PageData> createPagesDataByPagesId(int lemmaId) {
-        List<PageData> pagesData = new ArrayList<>();
+    private List<PageData> createPagesDataByLemmaId(int lemmaId) {
         List<Integer> pagesIds = indexRepository.findPageIdByLemmaId(lemmaId);
-        return createPagesData(lemmaId, pagesIds, pagesData);
+        return createPagesData(lemmaId, pagesIds);
     }
 
-    private List<PageData> createPagesData(int lemmaId, List<Integer> pagesId, List<PageData> pagesData) {
+    private List<PageData> createPagesData(int lemmaId, List<Integer> pagesId) {
+        List<PageData> pagesData = new ArrayList<>();
         for (Integer pageId : pagesId) {
             List<Float> listRank = indexRepository.findRankByLemmaIdAndPageId(lemmaId, pageId);
             if (!listRank.isEmpty()) {
