@@ -22,6 +22,7 @@ import searchengine.repository.PageRepository;
 import searchengine.repository.SiteRepository;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static searchengine.utils.UrlUtils.*;
 import static searchengine.exceptions.SearchServiceException.getTxtFirstLine;
@@ -42,7 +43,6 @@ public class SearchServiceImpl implements SearchService {
         try {
             Set<String> lemmaSet = getLemmaSet(req.getQuery());
             List<PageData> pagesData = findPages(lemmaSet, req.getSiteUrl());
-            Collections.sort(pagesData);
             List<PageData> limitedList = getLimitedPagesData(pagesData, req.getOffset(), req.getLimit());
             List<SearchObject> snippedObjectList = getSearchObjects(limitedList, req.getQuery());
             return getSearchRespOk(snippedObjectList);
@@ -202,13 +202,15 @@ public class SearchServiceImpl implements SearchService {
             float newRank = pageData.getGeneralRank() / allRank;
             pageData.setGeneralRank(newRank);
         }
+        pagesData.sort(PageData.generalRankComparator);
         return pagesData;
     }
 
     private List<LemmaEntity> getSortLemmas(List<String> lemmaNames, SiteEntity site) {
         Map<String, LemmaEntity> lemmasMap = getLemmasMap(site);
         List<LemmaEntity> lemmas = getLemmasFromLemmaNamesList(lemmasMap, lemmaNames);
-        lemmas.sort(LemmaEntity.getFrequencyComparator());
+        lemmas = lemmas.stream().filter(Objects::nonNull).collect(Collectors.toList());
+        lemmas.sort(LemmaEntity.frequencyComparator);
         return lemmas;
     }
 

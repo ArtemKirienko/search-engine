@@ -36,8 +36,13 @@ public class LemmaEntity {
         this.frequency = 1;
     }
 
-    public static Comparator<LemmaEntity> getFrequencyComparator() {
-        return Comparator.comparingInt(LemmaEntity::getFrequency);
-    }
+    public static Comparator<LemmaEntity> frequencyComparator = (o1, o2) -> {
+        int o1freq = o1.getFrequency();
+        int o2freq = o2.getFrequency();
+        if(o1freq == o2freq){
+            return 0;
+        }
+       return o1freq - o2freq < 0 ? -1 : 1;
+    };
 }
 

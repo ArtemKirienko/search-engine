@@ -31,12 +31,10 @@ public class PageEntity {
     private Set<IndexEntity> indexSet = new HashSet<>();
 
     public PageEntity(SiteEntity site, String path, int code, String content) {
-        synchronized (this) {
-            this.site = site;
-            this.path = path;
-            this.code = code;
-            this.content = content;
-        }
+        this.site = site;
+        this.path = path;
+        this.code = code;
+        this.content = content;
     }
 
     @Override

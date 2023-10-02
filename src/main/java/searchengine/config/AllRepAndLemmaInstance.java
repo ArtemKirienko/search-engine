@@ -7,6 +7,8 @@ import searchengine.repository.LemmaRepository;
 import searchengine.repository.PageRepository;
 import searchengine.repository.SiteRepository;
 
+import java.util.List;
+
 @Getter
 @Component
 public class AllRepAndLemmaInstance {
@@ -17,6 +19,7 @@ public class AllRepAndLemmaInstance {
     private final LemmaFinderInstance lemmaFinderInstance;
     private final ConnectionMetod connectionMetod;
     private final SitesList sitesList;
+
 
     public AllRepAndLemmaInstance(SiteRepository repJpaSite, IndexRepository repJpaIndex, LemmaRepository repJpaLemma, PageRepository repJpaPage, LemmaFinderInstance lemmaFinderInstance, ConnectionMetod connectionMetod, SitesList sitesList) {
         this.repJpaSite = repJpaSite;
