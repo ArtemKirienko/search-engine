@@ -209,7 +209,6 @@ public class SearchServiceImpl implements SearchService {
     private List<LemmaEntity> getSortLemmas(List<String> lemmaNames, SiteEntity site) {
         Map<String, LemmaEntity> lemmasMap = getLemmasMap(site);
         List<LemmaEntity> lemmas = getLemmasFromLemmaNamesList(lemmasMap, lemmaNames);
-        lemmas = lemmas.stream().filter(Objects::nonNull).collect(Collectors.toList());
         lemmas.sort(LemmaEntity.frequencyComparator);
         return lemmas;
     }
