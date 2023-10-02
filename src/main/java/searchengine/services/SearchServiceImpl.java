@@ -22,7 +22,6 @@ import searchengine.repository.PageRepository;
 import searchengine.repository.SiteRepository;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static searchengine.utils.UrlUtils.*;
 import static searchengine.exceptions.SearchServiceException.getTxtFirstLine;
