@@ -42,7 +42,7 @@ public class LemmaEntity {
         if(o1freq == o2freq){
             return 0;
         }
-       return o1freq - o2freq < 0 ? -1 : 1;
+       return o1freq < o2freq  ? -1 : 1;
     };
 }
 

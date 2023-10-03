@@ -20,6 +20,6 @@ public class PageData {
        if (Float.compare(o1.getGeneralRank(), o2.getGeneralRank()) == 0) {
            return 0;
        }
-       return o1.getGeneralRank() - o2.getGeneralRank() < 0 ? 1 : -1;
+       return o1.getGeneralRank() < o2.getGeneralRank() ? 1 : -1;
    };
 }
