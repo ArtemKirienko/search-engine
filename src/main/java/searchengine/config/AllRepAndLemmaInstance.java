@@ -7,8 +7,6 @@ import searchengine.repository.LemmaRepository;
 import searchengine.repository.PageRepository;
 import searchengine.repository.SiteRepository;
 
-import java.util.List;
-
 @Getter
 @Component
 public class AllRepAndLemmaInstance {
