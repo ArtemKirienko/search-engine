@@ -21,6 +21,6 @@ public class Site {
 
     @Override
     public int hashCode(){
-        return url.hashCode();
+        return 1;
     }
 }
