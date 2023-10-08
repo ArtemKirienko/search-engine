@@ -16,11 +16,11 @@ public class Site {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Site site = (Site) o;
-        return Objects.equals(url, site.url);
+        return url.equals(site.url);
     }
 
     @Override
-    public int hashCode(){
-        return 1;
+    public int hashCode() {
+        return Objects.hash(url);
     }
 }
