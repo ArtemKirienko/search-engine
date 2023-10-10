@@ -34,13 +34,11 @@ public class SiteEntity {
     private Set<PageEntity> pageSet = new HashSet<>();
 
     public SiteEntity(String name, String url, StatusType type) {
-        synchronized (this) {
             this.name = name;
             this.status = type;
             this.statusTime = LocalDateTime.now();
             this.url = url;
             this.lastError = "";
-        }
     }
 
     public SiteEntity(String name, String url, StatusType type, String lastError) {

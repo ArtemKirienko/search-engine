@@ -42,10 +42,10 @@ public class IndexingServiceImpl implements IndexingService {
     public IndexingResponse startIndexing() {
         return indicator.isExec() ?
                 getIndRespError("Индексация уже запущена") :
-                runStart();
+                run();
     }
 
-    private IndexingResponse runStart() {
+    private IndexingResponse run() {
         start();
         return getIndRespOk();
     }
@@ -86,7 +86,7 @@ public class IndexingServiceImpl implements IndexingService {
                     indexPage(optional.get(), url) :
                     getIndRespError("Сайт находиться за пределами индексируемого списка сайтов");
         } catch (Exception e) {
-            return checkErrorClass(e);
+            return errorClassCheck(e);
         }
     }
 
@@ -96,15 +96,15 @@ public class IndexingServiceImpl implements IndexingService {
                 .findFirst();
     }
 
-    private IndexingResponse checkErrorClass(Exception e) {
+    private IndexingResponse errorClassCheck(Exception e) {
         return e instanceof HttpStatusException && parseStatus(e.getMessage()) == 404 ?
                 getIndRespError("Указанная страница не найдена или недоступна") :
                 e instanceof IndexingServiceException ?
                         getIndRespError(e.getMessage()) :
-                        getExceptionNotVerifiable(e);
+                        getMessageForOtherExceptions();
     }
 
-    private IndexingResponse getExceptionNotVerifiable(Exception e) {
+    private IndexingResponse getMessageForOtherExceptions() {
         return getIndRespError("Произошла ошибка индексации");
     }
 

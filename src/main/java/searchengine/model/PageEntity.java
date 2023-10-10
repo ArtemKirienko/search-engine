@@ -36,11 +36,6 @@ public class PageEntity {
         this.code = code;
         this.content = content;
     }
-
-    @Override
-    public int hashCode() {
-        return getSite().hashCode() + getPath().hashCode();
-    }
 }
 
 
